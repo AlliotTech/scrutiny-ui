@@ -3,15 +3,7 @@
 import { toast } from "sonner";
 import React from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
 import { useI18n } from "@/lib/i18n";
 import { performDeviceAction } from "@/lib/device-actions";
 import { AppConfig, DeviceSummaryModel, MetricsStatusThreshold } from "@/lib/types";
@@ -91,40 +83,22 @@ export function DeviceList({ summary, settings, showArchived, onAction }: Device
         </div>
       ))}
 
-      <Dialog open={!!confirmState} onOpenChange={() => setConfirmState(null)}>
-        <DialogContent onPointerDown={(event) => event.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle>{confirmState?.label}</DialogTitle>
-            <DialogDescription>
-              {confirmState?.action === "delete"
-                ? t("device.actions.delete_warning")
-                : confirmState?.action === "archive"
-                ? t("device.actions.archive_confirm")
-                : t("device.actions.unarchive_confirm")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation();
-                setConfirmState(null);
-              }}
-            >
-              {t("device.actions.cancel")}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleConfirm();
-              }}
-            >
-              {t("device.actions.confirm")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmActionDialog
+        open={!!confirmState}
+        title={confirmState?.label ?? ""}
+        description={
+          confirmState?.action === "delete"
+            ? t("device.actions.delete_warning")
+            : confirmState?.action === "archive"
+            ? t("device.actions.archive_confirm")
+            : t("device.actions.unarchive_confirm")
+        }
+        confirmLabel={t("device.actions.confirm")}
+        cancelLabel={t("device.actions.cancel")}
+        confirmVariant="destructive"
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 }

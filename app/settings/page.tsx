@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
 import { InfoTip } from "@/components/ui/info-tip";
+import { RequestState } from "@/components/ui/request-state";
+import { RequestSkeleton } from "@/components/ui/request-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
 import { useHealth, useSettings } from "@/lib/hooks";
 import { saveSettings, sendTestNotification } from "@/lib/api";
@@ -114,21 +116,18 @@ export default function SettingsPage() {
 
   if (settings.error) {
     return (
-      <Card className="glass-panel">
-        <CardContent className="space-y-4 p-6">
-          <p className="text-sm text-muted-foreground">{String(settings.error)}</p>
-          <Button onClick={() => settings.mutate()}>{t("common.retry")}</Button>
-        </CardContent>
-      </Card>
+      <RequestState
+        title={t("settings.title")}
+        message={String(settings.error)}
+        actionLabel={t("common.retry")}
+        onAction={() => settings.mutate()}
+      />
     );
   }
 
   if (!draft) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-64" />
-      </div>
+      <RequestSkeleton blocks={["h-64"]} />
     );
   }
 
