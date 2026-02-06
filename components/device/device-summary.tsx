@@ -12,6 +12,7 @@ import {
   formatDateTime,
   formatPowerOnHours,
   formatTemperature,
+  statusBarClass,
 } from "@/lib/format";
 
 interface DeviceSummaryProps {
@@ -38,13 +39,15 @@ export function DeviceSummary({ device, smart, settings }: DeviceSummaryProps) {
   );
   const statusLabel = t(`status.${status.replace(": ", "_")}`);
   const pillStatus = status === "passed" ? "passed" : status.startsWith("failed") ? "failed" : "unknown";
+  const statusBar = statusBarClass(status);
   const isAta = device.device_protocol?.toUpperCase() === "ATA";
   const protocol = device.device_protocol?.toUpperCase() ?? "";
   const ProtocolIcon =
     protocol === "ATA" ? HardDrive : protocol === "NVME" ? Cpu : protocol === "SCSI" ? Server : HelpCircle;
 
   return (
-    <Card className="glass-panel">
+    <Card className="relative overflow-hidden glass-panel">
+      <div className={`absolute inset-x-0 top-0 h-1 ${statusBar}`} />
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">

@@ -1,5 +1,3 @@
-import { CheckCircle2, ShieldAlert } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 interface StatusPillProps {
@@ -15,13 +13,6 @@ const STATUS_STYLES: Record<StatusPillProps["status"], string> = {
 };
 
 export function StatusPill({ status, label, className }: StatusPillProps) {
-  const icon =
-    status === "passed" ? (
-      <CheckCircle2 className="h-4 w-4" />
-    ) : status === "failed" ? (
-      <ShieldAlert className="h-4 w-4" />
-    ) : null;
-
   return (
     <span
       className={cn(
@@ -30,7 +21,6 @@ export function StatusPill({ status, label, className }: StatusPillProps) {
         className
       )}
     >
-      {icon}
       {label}
     </span>
   );
