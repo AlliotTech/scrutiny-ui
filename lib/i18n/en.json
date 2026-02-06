@@ -102,6 +102,7 @@
   "settings.collector.title": "Collector",
   "settings.collector.discard_sct_temp_history": "Discard SCT Temperature History",
   "settings.collector.discard_sct_temp_history_help": "Discard historical temperature data retrieved from the SMART Command Transport (SCT) Data Table, which may be inaccurate for some drives. The current temperature is always stored.",
+  "settings.actions.unsaved": "You have unsaved changes.",
   "settings.actions.save": "Save Settings",
   "settings.actions.saving": "Saving...",
   "settings.actions.saved": "Settings updated",

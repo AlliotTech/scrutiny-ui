@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +27,25 @@ export default function SettingsPage() {
   const [draft, setDraft] = useState<AppConfig | null>(null);
   const [saving, setSaving] = useState(false);
   const [testingNotify, setTestingNotify] = useState(false);
+
+  const isDirty = useMemo(() => {
+    if (!draft || !settings.data) return false;
+    const normalizeValue = (value: unknown): unknown => {
+      if (Array.isArray(value)) {
+        return value.map((item) => normalizeValue(item));
+      }
+      if (value && typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined)
+          .sort(([a], [b]) => a.localeCompare(b));
+        return Object.fromEntries(entries.map(([k, v]) => [k, normalizeValue(v)]));
+      }
+      return value;
+    };
+    const left = JSON.stringify(normalizeValue(draft));
+    const right = JSON.stringify(normalizeValue(settings.data));
+    return left !== right;
+  }, [draft, settings.data]);
 
   useEffect(() => {
     if (settings.data) {
@@ -76,6 +95,16 @@ export default function SettingsPage() {
       setTestingNotify(false);
     }
   };
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   if (settings.error) {
     return (
@@ -339,9 +368,14 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave} disabled={saving} className="w-full md:w-auto">
-        {saving ? t("settings.actions.saving") : t("settings.actions.save")}
-      </Button>
+      <div className="space-y-2">
+        {isDirty ? (
+          <p className="text-xs text-muted-foreground">{t("settings.actions.unsaved")}</p>
+        ) : null}
+        <Button onClick={handleSave} disabled={saving || !isDirty} className="w-full md:w-auto">
+          {saving ? t("settings.actions.saving") : t("settings.actions.save")}
+        </Button>
+      </div>
     </div>
   );
 }

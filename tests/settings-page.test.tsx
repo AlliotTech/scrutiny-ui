@@ -57,4 +57,18 @@ describe("SettingsPage", () => {
     const payload = vi.mocked(saveSettings).mock.calls[0]?.[0];
     expect(payload?.collector?.discard_sct_temp_history).toBe(true);
   });
+
+  it("enables save when settings change", async () => {
+    const user = userEvent.setup();
+    const { findByRole, findByText } = renderWithProviders(<SettingsPage />);
+
+    const saveButton = await findByRole("button", { name: "Save Settings" });
+    expect(saveButton).toBeDisabled();
+
+    const toggle = await findByRole("switch", { name: "Discard SCT Temperature History" });
+    await user.click(toggle);
+
+    expect(saveButton).toBeEnabled();
+    expect(await findByText("You have unsaved changes.")).toBeInTheDocument();
+  });
 });

@@ -102,6 +102,7 @@
   "settings.collector.title": "采集",
   "settings.collector.discard_sct_temp_history": "丢弃 SCT 温度历史",
   "settings.collector.discard_sct_temp_history_help": "丢弃从 SMART Command Transport（SCT）数据表获取的历史温度数据，该数据在某些硬盘上可能不准确。当前温度仍会保存。",
+  "settings.actions.unsaved": "你有未保存的更改。",
   "settings.actions.save": "保存设置",
   "settings.actions.saving": "保存中...",
   "settings.actions.saved": "设置已更新",
