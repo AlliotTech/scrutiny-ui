@@ -1,19 +1,9 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import React from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { StatusPill } from "@/components/ui/status-pill";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -22,16 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { performDeviceAction } from "@/lib/device-actions";
 import { AppConfig, DeviceSummaryModel, MetricsStatusThreshold } from "@/lib/types";
-import { formatDateTime, formatTemperature, summaryAgeClass } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import {
-  deviceHref,
-  getDeviceCardData,
-  groupDevicesByHost,
-} from "@/components/dashboard/device-list-shared";
+import { groupDevicesByHost } from "@/components/dashboard/device-list-shared";
+import { DeviceCard } from "@/components/dashboard/device-card";
 
 interface DeviceListMobileProps {
   summary: Record<string, DeviceSummaryModel>;
@@ -50,8 +36,6 @@ export function DeviceListMobile({ summary, settings, showArchived, onAction }: 
   } | null>(null);
 
   const threshold = settings?.metrics?.status_threshold ?? MetricsStatusThreshold.Both;
-  const temperatureUnit = settings?.temperature_unit ?? "celsius";
-
   const devices = Object.values(summary).filter((device) =>
     showArchived ? true : !device.device.archived
   );
@@ -89,108 +73,18 @@ export function DeviceListMobile({ summary, settings, showArchived, onAction }: 
             <span className="text-foreground">{host}</span>
           </div>
           <div className="space-y-3">
-            {group.map((deviceSummary) => {
-              const {
-                failedEmphasis,
-                pillStatus,
-                ProtocolIcon,
-                protocol,
-                statusLabel,
-                title,
-              } = getDeviceCardData(deviceSummary, settings, threshold, t);
-              return (
-                <div
-                  key={deviceSummary.device.wwn}
-                  className={`rounded-lg border bg-card p-4 cursor-pointer transition-colors hover:bg-muted/30 ${failedEmphasis}`}
-                  onClick={() => router.push(deviceHref(deviceSummary.device.wwn))}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground"
-                          title={protocol || t("common.unknown")}
-                        >
-                          <ProtocolIcon className="h-3.5 w-3.5" />
-                        </span>
-                        <h3 className="text-base font-semibold">{title}</h3>
-                        {deviceSummary.device.archived && (
-                          <Badge variant="outline">{t("dashboard.devices.archived")}</Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{deviceSummary.device.wwn}</p>
-                    </div>
-                    <StatusPill status={pillStatus} label={statusLabel} />
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-[11px] uppercase text-muted-foreground">{t("dashboard.devices.last_updated")}</p>
-                    <p className={cn("text-base font-semibold", summaryAgeClass(deviceSummary.smart))}>
-                      {formatDateTime(deviceSummary.smart?.collector_date)}
-                    </p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] uppercase text-muted-foreground">{t("dashboard.devices.temp")}</p>
-                      <p className="text-base font-semibold">
-                        {formatTemperature(deviceSummary.smart?.temp, temperatureUnit)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onSelect={(event) => event.preventDefault()}
-                          onClick={() => router.push(deviceHref(deviceSummary.device.wwn))}
-                          className="cursor-pointer"
-                        >
-                          {t("nav.device")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={(event) => event.preventDefault()}
-                          onClick={() =>
-                            setConfirmState({
-                              action: deviceSummary.device.archived ? "unarchive" : "archive",
-                              wwn: deviceSummary.device.wwn,
-                              label: title,
-                            })
-                          }
-                          className="cursor-pointer"
-                        >
-                          {deviceSummary.device.archived
-                            ? t("device.actions.unarchive")
-                            : t("device.actions.archive")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={(event) => event.preventDefault()}
-                          onClick={() =>
-                            setConfirmState({
-                              action: "delete",
-                              wwn: deviceSummary.device.wwn,
-                              label: title,
-                            })
-                          }
-                          className="cursor-pointer"
-                        >
-                          {t("device.actions.delete")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              );
-            })}
+            {group.map((deviceSummary) => (
+              <DeviceCard
+                key={deviceSummary.device.wwn}
+                deviceSummary={deviceSummary}
+                settings={settings}
+                threshold={threshold}
+                t={t}
+                variant="mobile"
+                onAction={(payload) => setConfirmState(payload)}
+                onNavigate={(href) => router.push(href)}
+              />
+            ))}
           </div>
         </div>
       ))}
