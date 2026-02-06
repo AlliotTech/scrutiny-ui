@@ -32,7 +32,7 @@ interface DeviceCardProps {
   t: (key: string) => string;
   variant: DeviceCardVariant;
   onAction: (payload: { action: "archive" | "unarchive" | "delete"; wwn: string; label: string }) => void;
-  onNavigate?: (href: string) => void;
+  onNavigate: (href: string) => void;
 }
 
 export function DeviceCard({ deviceSummary, settings, threshold, t, variant, onAction, onNavigate }: DeviceCardProps) {
@@ -47,7 +47,7 @@ export function DeviceCard({ deviceSummary, settings, threshold, t, variant, onA
   const temperatureUnit = settings?.temperature_unit ?? "celsius";
 
   if (variant === "mobile") {
-    const handleNavigate = () => onNavigate?.(deviceHref(deviceSummary.device.wwn));
+    const handleNavigate = () => onNavigate(deviceHref(deviceSummary.device.wwn));
     return (
       <div
         className={`rounded-lg border bg-card p-4 cursor-pointer transition-colors hover:bg-muted/30 ${failedEmphasis}`}

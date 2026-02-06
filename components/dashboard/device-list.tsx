@@ -83,6 +83,7 @@ export function DeviceList({ summary, settings, showArchived, onAction }: Device
                   t={t}
                   variant="desktop"
                   onAction={(payload) => setConfirmState(payload)}
+                  onNavigate={() => {}}
                 />
               );
             })}

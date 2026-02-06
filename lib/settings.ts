@@ -1,5 +1,6 @@
 import { AppConfig } from "@/lib/types";
 
+// Keep keys in sync with AppConfig when adding new settings fields.
 export function buildSettingsPatch(original: AppConfig, next: AppConfig): Partial<AppConfig> {
   const patch: Partial<AppConfig> = {};
   const keys: Array<keyof AppConfig> = [
