@@ -25,7 +25,8 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { performDeviceAction } from "@/lib/device-actions";
 import { AppConfig, DeviceSummaryModel, MetricsStatusThreshold } from "@/lib/types";
-import { formatDateTime, formatTemperature } from "@/lib/format";
+import { formatDateTime, formatTemperature, summaryAgeClass } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   deviceHref,
   getDeviceCardData,
@@ -125,9 +126,9 @@ export function DeviceListMobile({ summary, settings, showArchived, onAction }: 
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <p className="text-[11px] uppercase text-muted-foreground">{t("dashboard.devices.last_updated")}</p>
-                      <p className="text-base font-semibold">
-                        {formatDateTime(deviceSummary.smart?.collector_date)}
-                      </p>
+                    <p className={cn("text-base font-semibold", summaryAgeClass(deviceSummary.smart))}>
+                      {formatDateTime(deviceSummary.smart?.collector_date)}
+                    </p>
                     </div>
                     <div>
                       <p className="text-[11px] uppercase text-muted-foreground">{t("dashboard.devices.temp")}</p>
