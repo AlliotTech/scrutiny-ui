@@ -1,0 +1,112 @@
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "0x5000c500dbe60357": {
+        "device": {
+          "archived": false,
+          "wwn": "0x5000c500dbe60357",
+          "device_name": "sdc",
+          "device_uuid": "806cf4bc-d160-4d96-8ee9-3ab7cf2a2e1f",
+          "device_serial_id": "ata-ST4000VX000-2AG166",
+          "device_label": "ST4000VX000",
+          "manufacturer": "ATA",
+          "model_name": "ST4000VX000-2AG166",
+          "interface_type": "SATA",
+          "interface_speed": "6.0Gb/s",
+          "serial_number": "Z4DXXXXX",
+          "firmware": "SC60",
+          "rotational_speed": 7200,
+          "capacity": 4000787030016,
+          "form_factor": "3.5",
+          "smart_support": true,
+          "device_protocol": "ATA",
+          "device_type": "ata",
+          "label": "",
+          "host_id": "alpha-host",
+          "device_status": 2
+        },
+        "smart": {
+          "collector_date": "2026-02-05T16:45:00Z",
+          "temp": 20,
+          "power_on_hours": 1730
+        },
+        "temp_history": [
+          { "date": "2026-02-01T16:45:00Z", "temp": 21 },
+          { "date": "2026-02-03T16:45:00Z", "temp": 20 },
+          { "date": "2026-02-05T16:45:00Z", "temp": 20 }
+        ]
+      },
+      "0x50014ee21294c39b": {
+        "device": {
+          "archived": false,
+          "wwn": "0x50014ee21294c39b",
+          "device_name": "sda",
+          "device_uuid": "8125ec6d-a7e4-4950-ac84-72d6a4d67128",
+          "device_serial_id": "ata-WDC-WD40EJRX-89AKWY0",
+          "device_label": "WD40EJRX",
+          "manufacturer": "WDC",
+          "model_name": "WD40EJRX-89AKWY0",
+          "interface_type": "SATA",
+          "interface_speed": "6.0Gb/s",
+          "serial_number": "9RK1XXXXX",
+          "firmware": "80.00A80",
+          "rotational_speed": 5400,
+          "capacity": 4000787030016,
+          "form_factor": "3.5",
+          "smart_support": true,
+          "device_protocol": "ATA",
+          "device_type": "ata",
+          "label": "",
+          "host_id": "alpha-host",
+          "device_status": 2
+        },
+        "smart": {
+          "collector_date": "2026-02-05T16:45:00Z",
+          "temp": 20,
+          "power_on_hours": 44500
+        },
+        "temp_history": [
+          { "date": "2026-02-01T16:45:00Z", "temp": 19 },
+          { "date": "2026-02-03T16:45:00Z", "temp": 20 },
+          { "date": "2026-02-05T16:45:00Z", "temp": 20 }
+        ]
+      },
+      "0x58ce38ec021cab74": {
+        "device": {
+          "archived": false,
+          "wwn": "0x58ce38ec021cab74",
+          "device_name": "sdb",
+          "device_uuid": "9eb60cde-d6d0-4172-b520-b241a6a5477f",
+          "device_serial_id": "nvme-KIOXIA-EXCERIA",
+          "device_label": "KIOXIA-EXCERIA",
+          "manufacturer": "KIOXIA",
+          "model_name": "EXCERIA SATA SSD",
+          "interface_type": "SATA",
+          "interface_speed": "6.0Gb/s",
+          "serial_number": "KIOXIA001",
+          "firmware": "SBIOS",
+          "rotational_speed": 0,
+          "capacity": 960197124096,
+          "form_factor": "2.5",
+          "smart_support": true,
+          "device_protocol": "SCSI",
+          "device_type": "scsi",
+          "label": "",
+          "host_id": "",
+          "device_status": 0
+        },
+        "smart": {
+          "collector_date": "2026-02-05T16:45:00Z",
+          "temp": 12,
+          "power_on_hours": 1200
+        },
+        "temp_history": [
+          { "date": "2026-02-01T16:45:00Z", "temp": 11 },
+          { "date": "2026-02-03T16:45:00Z", "temp": 12 },
+          { "date": "2026-02-05T16:45:00Z", "temp": 12 }
+        ]
+      }
+    }
+  }
+}

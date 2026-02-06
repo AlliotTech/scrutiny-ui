@@ -1,0 +1,115 @@
+{
+  "success": true,
+  "data": {
+    "device": {
+      "archived": false,
+      "wwn": "0x5000c500dbe60357",
+      "device_name": "sdc",
+      "device_uuid": "806cf4bc-d160-4d96-8ee9-3ab7cf2a2e1f",
+      "device_serial_id": "ata-ST4000VX000-2AG166",
+      "device_label": "ST4000VX000",
+      "manufacturer": "ATA",
+      "model_name": "ST4000VX000-2AG166",
+      "interface_type": "SATA",
+      "interface_speed": "6.0Gb/s",
+      "serial_number": "Z4DXXXXX",
+      "firmware": "SC60",
+      "rotational_speed": 7200,
+      "capacity": 4000787030016,
+      "form_factor": "3.5",
+      "smart_support": true,
+      "device_protocol": "ATA",
+      "device_type": "ata",
+      "label": "",
+      "host_id": "alpha-host",
+      "device_status": 2
+    },
+    "smart_results": [
+      {
+        "date": "2026-02-05T16:45:00Z",
+        "device_wwn": "0x5000c500dbe60357",
+        "device_protocol": "ATA",
+        "temp": 20,
+        "power_on_hours": 1730,
+        "power_cycle_count": 9,
+        "attrs": {
+          "1": {
+            "attribute_id": 1,
+            "value": 100,
+            "thresh": 16,
+            "worst": 100,
+            "raw_value": 0,
+            "raw_string": "0",
+            "when_failed": "",
+            "transformed_value": 0,
+            "status": 0,
+            "failure_rate": 0.0341
+          },
+          "194": {
+            "attribute_id": 194,
+            "value": 51,
+            "thresh": 0,
+            "worst": 51,
+            "raw_value": 163210330144,
+            "raw_string": "20 (Min/Max 18/24)",
+            "when_failed": "",
+            "transformed_value": 20,
+            "status": 0
+          }
+        }
+      },
+      {
+        "date": "2026-02-03T16:45:00Z",
+        "device_wwn": "0x5000c500dbe60357",
+        "device_protocol": "ATA",
+        "temp": 21,
+        "power_on_hours": 1728,
+        "power_cycle_count": 9,
+        "attrs": {
+          "1": {
+            "attribute_id": 1,
+            "value": 100,
+            "thresh": 16,
+            "worst": 100,
+            "raw_value": 0,
+            "raw_string": "0",
+            "when_failed": "",
+            "transformed_value": 0,
+            "status": 0
+          },
+          "194": {
+            "attribute_id": 194,
+            "value": 51,
+            "thresh": 0,
+            "worst": 51,
+            "raw_value": 163210330144,
+            "raw_string": "21 (Min/Max 18/24)",
+            "when_failed": "",
+            "transformed_value": 21,
+            "status": 0
+          }
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "1": {
+      "display_name": "Raw Read Error Rate",
+      "ideal": "100",
+      "critical": false,
+      "description": "Rate of hardware read errors.",
+      "transform_value_unit": "",
+      "observed_thresholds": [],
+      "display_type": "raw"
+    },
+    "194": {
+      "display_name": "Temperature",
+      "ideal": "0",
+      "critical": true,
+      "description": "Current internal temperature.",
+      "transform_value_unit": "C",
+      "observed_thresholds": [],
+      "display_type": "temp"
+    }
+  }
+}

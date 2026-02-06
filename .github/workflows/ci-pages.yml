@@ -1,0 +1,145 @@
+name: CI and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build_pages:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test -- --run
+
+      - name: Set base path
+        run: |
+          if [[ "${{ github.event.repository.name }}" == *.github.io ]]; then
+            echo "NEXT_PUBLIC_BASE_PATH=" >> $GITHUB_ENV
+          else
+            echo "NEXT_PUBLIC_BASE_PATH=/${{ github.event.repository.name }}" >> $GITHUB_ENV
+          fi
+          echo "NEXT_PUBLIC_USE_MOCKS=true" >> $GITHUB_ENV
+          echo "NEXT_OUTPUT=export" >> $GITHUB_ENV
+
+      - name: Build
+        run: pnpm build
+
+      - name: Disable Jekyll
+        run: touch out/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: build_pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  build_release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test -- --run
+
+      - name: Set release env
+        run: |
+          echo "NEXT_PUBLIC_BASE_PATH=/web" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_USE_MOCKS=false" >> $GITHUB_ENV
+          echo "NEXT_OUTPUT=export" >> $GITHUB_ENV
+
+      - name: Build
+        run: pnpm build
+
+      - name: Create release archive
+        run: |
+          tar -czf scrutiny-web-frontend.tar.gz -C out .
+          sha256sum scrutiny-web-frontend.tar.gz > scrutiny-web-frontend.tar.gz.sha256
+          {
+            echo "Static frontend bundle for Scrutiny.";
+            echo;
+            echo "Version: ${GITHUB_REF_NAME}";
+            echo "Build time (UTC): $(date -u +'%Y-%m-%d %H:%M:%S')";
+            echo;
+            echo "SHA256:";
+            cat scrutiny-web-frontend.tar.gz.sha256;
+          } > release-notes.txt
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrutiny-web-frontend
+          path: |
+            scrutiny-web-frontend.tar.gz
+            scrutiny-web-frontend.tar.gz.sha256
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.txt
+          files: |
+            scrutiny-web-frontend.tar.gz
+            scrutiny-web-frontend.tar.gz.sha256
