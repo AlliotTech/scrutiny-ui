@@ -42,6 +42,12 @@ export default function SettingsPage() {
       metrics: { ...(prev?.metrics ?? {}), ...next },
     }));
   };
+  const updateCollector = (next: Partial<AppConfig["collector"]>) => {
+    setDraft((prev) => ({
+      ...(prev ?? {}),
+      collector: { ...(prev?.collector ?? {}), ...next },
+    }));
+  };
 
   const handleSave = async () => {
     if (!draft) return;
@@ -282,6 +288,32 @@ export default function SettingsPage() {
                 <SelectItem value="stepline">{t("settings.display.step")}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-panel">
+        <CardHeader>
+          <CardTitle>{t("settings.collector.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="text-xs uppercase text-muted-foreground">
+              {t("settings.collector.discard_sct_temp_history")}
+            </label>
+            <div className="mt-2 flex items-center gap-2">
+              <Switch
+                checked={draft.collector?.discard_sct_temp_history ?? false}
+                aria-label={t("settings.collector.discard_sct_temp_history")}
+                onCheckedChange={(value) => updateCollector({ discard_sct_temp_history: value })}
+              />
+              <span className="text-sm">
+                {draft.collector?.discard_sct_temp_history ? t("common.on") : t("common.off")}
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t("settings.collector.discard_sct_temp_history_help")}
+            </p>
           </div>
         </CardContent>
       </Card>
