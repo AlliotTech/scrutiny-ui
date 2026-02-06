@@ -131,7 +131,8 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
             {t("device.export")}
           </Button>
           <Button
-            variant="secondary"
+            variant={details.data?.data.device.archived ? "secondary" : "outline"}
+            aria-pressed={details.data?.data.device.archived ? true : undefined}
             onClick={() => setConfirmState(details.data?.data.device.archived ? "unarchive" : "archive")}
           >
             {details.data?.data.device.archived ? (
