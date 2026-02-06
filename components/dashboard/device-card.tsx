@@ -18,6 +18,7 @@ import {
   formatDateTime,
   formatPowerOnHours,
   formatTemperature,
+  statusBarClass,
   summaryAgeClass,
 } from "@/lib/format";
 import { AppConfig, DeviceSummaryModel, MetricsStatusThreshold } from "@/lib/types";
@@ -42,17 +43,20 @@ export function DeviceCard({ deviceSummary, settings, threshold, t, variant, onA
     ProtocolIcon,
     protocol,
     statusLabel,
+    status,
     title,
   } = getDeviceCardData(deviceSummary, settings, threshold, t);
   const temperatureUnit = settings?.temperature_unit ?? "celsius";
+  const statusBar = statusBarClass(status);
 
   if (variant === "mobile") {
     const handleNavigate = () => onNavigate(deviceHref(deviceSummary.device.wwn));
     return (
       <div
-        className={`rounded-lg border bg-card p-4 cursor-pointer transition-colors hover:bg-muted/30 ${failedEmphasis}`}
+        className={`relative overflow-hidden rounded-lg border bg-card p-4 cursor-pointer transition-colors hover:bg-muted/30 ${failedEmphasis}`}
         onClick={handleNavigate}
       >
+        <div className={`pointer-events-none absolute inset-x-0 top-0 h-1 ${statusBar}`} />
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -136,7 +140,8 @@ export function DeviceCard({ deviceSummary, settings, threshold, t, variant, onA
   }
 
   return (
-    <Card className={`glass-panel ${failedEmphasis}`}>
+    <Card className={`relative overflow-hidden glass-panel ${failedEmphasis}`}>
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-1 ${statusBar}`} />
       <CardContent className="flex h-full flex-col gap-4 pt-6">
         <Link
           href={deviceHref(deviceSummary.device.wwn)}

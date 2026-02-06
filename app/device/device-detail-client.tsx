@@ -11,20 +11,15 @@ import { AttributeTable } from "@/components/device/attribute-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
 import { useDeviceDetails, useSettings } from "@/lib/hooks";
 import { deviceTitleWithFallback } from "@/lib/format";
 import { archiveDevice, deleteDevice, unarchiveDevice } from "@/lib/api";
 import { DurationKey, DURATION_KEYS } from "@/lib/constants";
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog";
+import { RequestState } from "@/components/ui/request-state";
+import { RequestSkeleton } from "@/components/ui/request-skeleton";
 
 const SmartChart = dynamic(() => import("@/components/device/smart-chart").then((mod) => mod.SmartChart), {
   ssr: false,
@@ -96,22 +91,18 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
 
   if (details.error) {
     return (
-      <Card className="glass-panel">
-        <CardContent className="space-y-4 p-6">
-          <p className="text-sm text-muted-foreground">{String(details.error)}</p>
-          <Button onClick={() => details.mutate()}>{t("common.retry")}</Button>
-        </CardContent>
-      </Card>
+      <RequestState
+        title={t("device.title")}
+        message={String(details.error)}
+        actionLabel={t("common.retry")}
+        onAction={() => details.mutate()}
+      />
     );
   }
 
   if (!details.data) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-24" />
-        <Skeleton className="h-72" />
-        <Skeleton className="h-64" />
-      </div>
+      <RequestSkeleton blocks={["h-24", "h-72", "h-64"]} titleClassName="h-0 w-0" />
     );
   }
 
@@ -196,34 +187,28 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
         settings={settings.data}
       />
 
-      <Dialog open={confirmState !== null} onOpenChange={(open) => !open && setConfirmState(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {confirmState === "delete"
-                ? t("device.actions.delete")
-                : confirmState === "archive"
-                  ? t("device.actions.archive")
-                  : t("device.actions.unarchive")}
-            </DialogTitle>
-            <DialogDescription>
-              {confirmState === "delete"
-                ? t("device.dialog.delete")
-                : confirmState === "archive"
-                  ? t("device.dialog.archive")
-                  : t("device.dialog.unarchive")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmState(null)}>
-              {t("common.cancel")}
-            </Button>
-            <Button variant={confirmState === "delete" ? "destructive" : "default"} onClick={handleAction}>
-              {t("common.confirm")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmActionDialog
+        open={confirmState !== null}
+        title={
+          confirmState === "delete"
+            ? t("device.actions.delete")
+            : confirmState === "archive"
+              ? t("device.actions.archive")
+              : t("device.actions.unarchive")
+        }
+        description={
+          confirmState === "delete"
+            ? t("device.dialog.delete")
+            : confirmState === "archive"
+              ? t("device.dialog.archive")
+              : t("device.dialog.unarchive")
+        }
+        confirmLabel={t("common.confirm")}
+        cancelLabel={t("common.cancel")}
+        confirmVariant={confirmState === "delete" ? "destructive" : "default"}
+        onConfirm={handleAction}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   );
 }

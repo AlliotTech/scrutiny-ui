@@ -6,15 +6,16 @@ import { RefreshCcw } from "lucide-react";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { DeviceList } from "@/components/dashboard/device-list";
 import { DeviceListMobile } from "@/components/dashboard/device-list-mobile";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
 import { useSettings, useSummary, useSummaryTemp } from "@/lib/hooks";
 import { toast } from "sonner";
 import { DurationKey } from "@/lib/constants";
 import { TempChartSection } from "@/components/dashboard/temp-chart-section";
+import { RequestState } from "@/components/ui/request-state";
+import { RequestSkeleton } from "@/components/ui/request-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const { t } = useI18n();
@@ -49,30 +50,21 @@ export default function DashboardPage() {
 
   if (summary.error) {
     return (
-      <Card className="glass-panel">
-        <CardHeader>
-          <CardTitle>{t("dashboard.title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{String(summary.error)}</p>
-          <Button onClick={handleRefresh}>{t("common.retry")}</Button>
-        </CardContent>
-      </Card>
+      <RequestState
+        title={t("dashboard.title")}
+        message={String(summary.error)}
+        actionLabel={t("common.retry")}
+        onAction={handleRefresh}
+      />
     );
   }
 
   if (!summary.data) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-1/2" />
-        <div className="grid gap-4 md:grid-cols-4">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-        </div>
-        <Skeleton className="h-64" />
-      </div>
+      <RequestSkeleton
+        titleClassName="h-8 w-1/2"
+        blocks={["h-24", "h-24", "h-24", "h-24", "h-64"]}
+      />
     );
   }
 
@@ -84,26 +76,15 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold md:text-3xl">{t("dashboard.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("dashboard.subtitle")}</p>
         </div>
-        <Card className="glass-panel">
-          <CardHeader>
-            <CardTitle>{t("dashboard.empty.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <p>{t("dashboard.empty.body")}</p>
-            <div className="rounded-md border bg-muted/30 p-3 font-mono text-xs text-foreground">
-              {t("dashboard.empty.command")}
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              aria-label={t("common.retry")}
-            >
-              <RefreshCcw className={isRefreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
-              <span className="ml-2">{t("common.retry")}</span>
-            </Button>
-          </CardContent>
-        </Card>
+        <RequestState
+          title={t("dashboard.empty.title")}
+          message={t("dashboard.empty.body")}
+          actionLabel={t("common.retry")}
+          onAction={handleRefresh}
+        />
+        <div className="rounded-md border bg-muted/30 p-3 font-mono text-xs text-foreground">
+          {t("dashboard.empty.command")}
+        </div>
       </div>
     );
   }

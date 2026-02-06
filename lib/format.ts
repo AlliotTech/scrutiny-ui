@@ -208,3 +208,9 @@ export function deviceTitleWithFallback(device: DeviceModel, titleType: Dashboar
   if (preferred) titleParts.push(preferred);
   return titleParts.join(" - ");
 }
+
+export function statusBarClass(status: string) {
+  if (status === "passed") return "bg-emerald-500";
+  if (status.startsWith("failed")) return "bg-rose-500";
+  return "bg-amber-500";
+}
