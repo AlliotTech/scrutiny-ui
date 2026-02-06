@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { Line, LineChart, ResponsiveContainer } from "recharts";
+import { Line, LineChart } from "recharts";
 import { ArrowUpDown, Info } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -343,17 +343,15 @@ export function AttributeTable({
                     <TableCell className="min-w-[120px]">
                       {history.length ? (
                         <div className="h-6 w-28">
-                          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <LineChart data={history}>
-                              <Line
-                                type="monotone"
-                                dataKey="value"
-                                stroke={attributeStatusColor(attr.status)}
-                                strokeWidth={1.5}
-                                dot={false}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
+                          <LineChart data={history} width={112} height={24}>
+                            <Line
+                              type="monotone"
+                              dataKey="value"
+                              stroke={attributeStatusColor(attr.status)}
+                              strokeWidth={1.5}
+                              dot={false}
+                            />
+                          </LineChart>
                         </div>
                       ) : (
                         "--"
