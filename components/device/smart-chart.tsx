@@ -34,7 +34,7 @@ export function SmartChart({ data, unit }: SmartChartProps) {
         <CardTitle>{t("device.smart_history")}</CardTitle>
       </CardHeader>
       <CardContent className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <LineChart data={series} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
             <XAxis
               dataKey="date"

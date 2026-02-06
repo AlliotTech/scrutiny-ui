@@ -343,7 +343,7 @@ export function AttributeTable({
                     <TableCell className="min-w-[120px]">
                       {history.length ? (
                         <div className="h-6 w-28">
-                          <ResponsiveContainer width="100%" height="100%">
+                          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <LineChart data={history}>
                               <Line
                                 type="monotone"
