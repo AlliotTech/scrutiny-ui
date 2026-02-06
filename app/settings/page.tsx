@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InfoTip } from "@/components/ui/info-tip";
 import { useI18n } from "@/lib/i18n";
 import { useHealth, useSettings } from "@/lib/hooks";
 import { saveSettings, sendTestNotification } from "@/lib/api";
+import { buildSettingsPatch } from "@/lib/settings";
 import {
   AppConfig,
   MetricsNotifyLevel,
@@ -25,6 +27,25 @@ export default function SettingsPage() {
   const [draft, setDraft] = useState<AppConfig | null>(null);
   const [saving, setSaving] = useState(false);
   const [testingNotify, setTestingNotify] = useState(false);
+
+  const isDirty = useMemo(() => {
+    if (!draft || !settings.data) return false;
+    const normalizeValue = (value: unknown): unknown => {
+      if (Array.isArray(value)) {
+        return value.map((item) => normalizeValue(item));
+      }
+      if (value && typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined)
+          .sort(([a], [b]) => a.localeCompare(b));
+        return Object.fromEntries(entries.map(([k, v]) => [k, normalizeValue(v)]));
+      }
+      return value;
+    };
+    const left = JSON.stringify(normalizeValue(draft));
+    const right = JSON.stringify(normalizeValue(settings.data));
+    return left !== right;
+  }, [draft, settings.data]);
 
   useEffect(() => {
     if (settings.data) {
@@ -42,12 +63,24 @@ export default function SettingsPage() {
       metrics: { ...(prev?.metrics ?? {}), ...next },
     }));
   };
+  const updateCollector = (next: Partial<AppConfig["collector"]>) => {
+    setDraft((prev) => ({
+      ...(prev ?? {}),
+      collector: { ...(prev?.collector ?? {}), ...next },
+    }));
+  };
+
 
   const handleSave = async () => {
     if (!draft) return;
+    const payload = buildSettingsPatch(settings.data ?? {}, draft);
+    if (Object.keys(payload).length === 0) {
+      toast.success(t("settings.actions.saved"));
+      return;
+    }
     try {
       setSaving(true);
-      await saveSettings(draft);
+      await saveSettings(payload);
       await settings.mutate();
       toast.success(t("settings.actions.saved"));
     } catch {
@@ -68,6 +101,16 @@ export default function SettingsPage() {
       setTestingNotify(false);
     }
   };
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   if (settings.error) {
     return (
@@ -286,9 +329,47 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave} disabled={saving} className="w-full md:w-auto">
-        {saving ? t("settings.actions.saving") : t("settings.actions.save")}
-      </Button>
+      <Card className="glass-panel">
+        <CardHeader>
+          <CardTitle>{t("settings.collector.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="collector-discard-sct-temp-history"
+                className="text-xs uppercase text-muted-foreground"
+              >
+                {t("settings.collector.discard_sct_temp_history")}
+              </label>
+              <InfoTip
+                label={t("settings.collector.discard_sct_temp_history")}
+                text={t("settings.collector.discard_sct_temp_history_help")}
+              />
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <Switch
+                id="collector-discard-sct-temp-history"
+                checked={draft.collector?.discard_sct_temp_history ?? false}
+                aria-label={t("settings.collector.discard_sct_temp_history")}
+                onCheckedChange={(value) => updateCollector({ discard_sct_temp_history: value })}
+              />
+              <span className="text-sm">
+                {draft.collector?.discard_sct_temp_history ? t("common.on") : t("common.off")}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-2">
+        {isDirty ? (
+          <p className="text-xs text-muted-foreground">{t("settings.actions.unsaved")}</p>
+        ) : null}
+        <Button onClick={handleSave} disabled={saving || !isDirty} className="w-full md:w-auto">
+          {saving ? t("settings.actions.saving") : t("settings.actions.save")}
+        </Button>
+      </div>
     </div>
   );
 }

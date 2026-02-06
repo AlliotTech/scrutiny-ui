@@ -132,6 +132,9 @@ export interface AppConfig {
   file_size_si_units?: boolean;
   powered_on_hours_unit?: DevicePoweredOnUnit;
   line_stroke?: LineStroke;
+  collector?: {
+    discard_sct_temp_history?: boolean;
+  };
   metrics?: {
     notify_level?: MetricsNotifyLevel;
     status_filter_attributes?: MetricsStatusFilterAttributes;
