@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Info } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { InfoTip } from "@/components/ui/info-tip";
 import { useI18n } from "@/lib/i18n";
 import { useHealth, useSettings } from "@/lib/hooks";
 import { saveSettings, sendTestNotification } from "@/lib/api";
@@ -70,11 +69,71 @@ export default function SettingsPage() {
     }));
   };
 
+  const buildSettingsPatch = (original: AppConfig, next: AppConfig): Partial<AppConfig> => {
+    const patch: Partial<AppConfig> = {};
+    const keys: Array<keyof AppConfig> = [
+      "theme",
+      "layout",
+      "dashboard_display",
+      "dashboard_sort",
+      "temperature_unit",
+      "file_size_si_units",
+      "powered_on_hours_unit",
+      "line_stroke",
+    ];
+    keys.forEach((key) => {
+      const nextValue = next[key];
+      if (nextValue !== undefined && nextValue !== original[key]) {
+        patch[key] = nextValue;
+      }
+    });
+
+    const metricsKeys: Array<keyof NonNullable<AppConfig["metrics"]>> = [
+      "notify_level",
+      "status_filter_attributes",
+      "status_threshold",
+      "repeat_notifications",
+    ];
+    const metricsPatch: Partial<NonNullable<AppConfig["metrics"]>> = {};
+    metricsKeys.forEach((key) => {
+      const nextValue = next.metrics?.[key];
+      const originalValue = original.metrics?.[key];
+      if (nextValue !== undefined && nextValue !== originalValue) {
+        metricsPatch[key] = nextValue;
+      }
+    });
+    if (Object.keys(metricsPatch).length > 0) {
+      patch.metrics = metricsPatch;
+    }
+
+    const collectorKeys: Array<keyof NonNullable<AppConfig["collector"]>> = [
+      "discard_sct_temp_history",
+    ];
+    const collectorPatch: Partial<NonNullable<AppConfig["collector"]>> = {};
+    collectorKeys.forEach((key) => {
+      const nextValue = next.collector?.[key];
+      const originalValue = original.collector?.[key];
+      if (nextValue !== undefined && nextValue !== originalValue) {
+        collectorPatch[key] = nextValue;
+      }
+    });
+    if (Object.keys(collectorPatch).length > 0) {
+      patch.collector = collectorPatch;
+    }
+
+    return patch;
+  };
+
   const handleSave = async () => {
     if (!draft) return;
+    const payload = buildSettingsPatch(settings.data ?? {}, draft);
+    if (Object.keys(payload).length === 0) {
+      toast.success(t("settings.actions.saved"));
+      return;
+    }
     try {
       setSaving(true);
-      await saveSettings(draft);
+      await saveSettings(payload);
       await settings.mutate();
       toast.success(t("settings.actions.saved"));
     } catch {
@@ -336,22 +395,10 @@ export default function SettingsPage() {
               >
                 {t("settings.collector.discard_sct_temp_history")}
               </label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-                      aria-label={t("settings.collector.discard_sct_temp_history")}
-                    >
-                      <Info className="h-3.5 w-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs text-xs">
-                    {t("settings.collector.discard_sct_temp_history_help")}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <InfoTip
+                label={t("settings.collector.discard_sct_temp_history")}
+                text={t("settings.collector.discard_sct_temp_history_help")}
+              />
             </div>
             <div className="mt-2 flex items-center gap-2">
               <Switch
