@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Info } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n";
 import { useHealth, useSettings } from "@/lib/hooks";
 import { saveSettings, sendTestNotification } from "@/lib/api";
@@ -298,11 +300,33 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="text-xs uppercase text-muted-foreground">
-              {t("settings.collector.discard_sct_temp_history")}
-            </label>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="collector-discard-sct-temp-history"
+                className="text-xs uppercase text-muted-foreground"
+              >
+                {t("settings.collector.discard_sct_temp_history")}
+              </label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+                      aria-label={t("settings.collector.discard_sct_temp_history")}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    {t("settings.collector.discard_sct_temp_history_help")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <div className="mt-2 flex items-center gap-2">
               <Switch
+                id="collector-discard-sct-temp-history"
                 checked={draft.collector?.discard_sct_temp_history ?? false}
                 aria-label={t("settings.collector.discard_sct_temp_history")}
                 onCheckedChange={(value) => updateCollector({ discard_sct_temp_history: value })}
@@ -311,9 +335,6 @@ export default function SettingsPage() {
                 {draft.collector?.discard_sct_temp_history ? t("common.on") : t("common.off")}
               </span>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {t("settings.collector.discard_sct_temp_history_help")}
-            </p>
           </div>
         </CardContent>
       </Card>
