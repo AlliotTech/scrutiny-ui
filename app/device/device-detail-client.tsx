@@ -131,7 +131,8 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
             {t("device.export")}
           </Button>
           <Button
-            variant="secondary"
+            variant={details.data?.data.device.archived ? "secondary" : "outline"}
+            aria-pressed={details.data?.data.device.archived ? true : undefined}
             onClick={() => setConfirmState(details.data?.data.device.archived ? "unarchive" : "archive")}
           >
             {details.data?.data.device.archived ? (
@@ -203,8 +204,8 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
               ? t("device.dialog.archive")
               : t("device.dialog.unarchive")
         }
-        confirmLabel={t("common.confirm")}
-        cancelLabel={t("common.cancel")}
+        confirmLabel={t("device.actions.confirm")}
+        cancelLabel={t("device.actions.cancel")}
         confirmVariant={confirmState === "delete" ? "destructive" : "default"}
         onConfirm={handleAction}
         onCancel={() => setConfirmState(null)}

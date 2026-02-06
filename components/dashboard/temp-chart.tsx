@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 
 import { Button } from "@/components/ui/button";
+import { ChartContainer } from "@/components/ui/chart-container";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n";
 import { DeviceSummaryModel, SmartTemperatureModel, TemperatureUnit } from "@/lib/types";
@@ -65,40 +66,11 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
   const { t } = useI18n();
   const [visible, setVisible] = useState<Record<string, boolean>>({});
   const [isClient, setIsClient] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
   }, []);
-
-  useEffect(() => {
-    if (!isClient || !containerRef.current) return;
-    const element = containerRef.current;
-    const updateSize = () => {
-      const { width, height } = element.getBoundingClientRect();
-      setContainerSize({ width, height });
-    };
-    const raf = requestAnimationFrame(updateSize);
-    const rafRetry = requestAnimationFrame(() => {
-      const { width, height } = element.getBoundingClientRect();
-      if (width === 0 || height === 0) updateSize();
-    });
-    let observer: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(() => updateSize());
-      observer.observe(element);
-    } else {
-      window.addEventListener("resize", updateSize);
-    }
-    return () => {
-      cancelAnimationFrame(raf);
-      cancelAnimationFrame(rafRetry);
-      if (observer) observer.disconnect();
-      else window.removeEventListener("resize", updateSize);
-    };
-  }, [isClient]);
 
   const deviceKeys = useMemo(
     () => Object.keys(tempHistory).filter((key) => tempHistory[key]?.length),
@@ -153,7 +125,7 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
   }, [deviceKeys, resolvedVisibility, tempHistory]);
 
   if (!isClient) {
-    return <div ref={containerRef} className="h-72 w-full min-w-0" />;
+    return <div className="h-72 w-full min-w-0" />;
   }
 
   return (
@@ -198,8 +170,8 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
           );
         })}
       </div>
-      <div ref={containerRef} className="h-72 w-full min-w-0">
-        {containerSize.width > 0 && containerSize.height > 0 ? (
+      <ChartContainer className="h-72 w-full" debounceMs={80}>
+        {(containerSize) => (
           <LineChart
             data={data}
             width={containerSize.width}
@@ -258,8 +230,8 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
               ) : null
             )}
           </LineChart>
-        ) : null}
-      </div>
+        )}
+      </ChartContainer>
     </div>
   );
 }
