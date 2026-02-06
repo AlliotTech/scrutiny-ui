@@ -1,14 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-} from "recharts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -72,11 +65,40 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
   const { t } = useI18n();
   const [visible, setVisible] = useState<Record<string, boolean>>({});
   const [isClient, setIsClient] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (!isClient || !containerRef.current) return;
+    const element = containerRef.current;
+    const updateSize = () => {
+      const { width, height } = element.getBoundingClientRect();
+      setContainerSize({ width, height });
+    };
+    const raf = requestAnimationFrame(updateSize);
+    const rafRetry = requestAnimationFrame(() => {
+      const { width, height } = element.getBoundingClientRect();
+      if (width === 0 || height === 0) updateSize();
+    });
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => updateSize());
+      observer.observe(element);
+    } else {
+      window.addEventListener("resize", updateSize);
+    }
+    return () => {
+      cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafRetry);
+      if (observer) observer.disconnect();
+      else window.removeEventListener("resize", updateSize);
+    };
+  }, [isClient]);
 
   const deviceKeys = useMemo(
     () => Object.keys(tempHistory).filter((key) => tempHistory[key]?.length),
@@ -131,7 +153,7 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
   }, [deviceKeys, resolvedVisibility, tempHistory]);
 
   if (!isClient) {
-    return <div className="h-72 w-full" />;
+    return <div ref={containerRef} className="h-72 w-full min-w-0" />;
   }
 
   return (
@@ -176,9 +198,14 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
           );
         })}
       </div>
-      <div className="h-72 w-full min-w-0">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          <LineChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+      <div ref={containerRef} className="h-72 w-full min-w-0">
+        {containerSize.width > 0 && containerSize.height > 0 ? (
+          <LineChart
+            data={data}
+            width={containerSize.width}
+            height={containerSize.height}
+            margin={{ top: 12, right: 12, left: 0, bottom: 0 }}
+          >
             <XAxis
               dataKey="date"
               tickFormatter={(value) => formatTickByDuration(value, durationKey)}
@@ -231,7 +258,7 @@ export function TempChart({ tempHistory, unit, summary, dashboardDisplay, durati
               ) : null
             )}
           </LineChart>
-        </ResponsiveContainer>
+        ) : null}
       </div>
     </div>
   );
