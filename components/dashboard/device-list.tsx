@@ -88,10 +88,10 @@ export function DeviceList({ summary, settings, showArchived, onAction }: Device
         title={confirmState?.label ?? ""}
         description={
           confirmState?.action === "delete"
-            ? t("device.actions.delete_warning")
+            ? t("device.dialog.delete")
             : confirmState?.action === "archive"
-            ? t("device.actions.archive_confirm")
-            : t("device.actions.unarchive_confirm")
+            ? t("device.dialog.archive")
+            : t("device.dialog.unarchive")
         }
         confirmLabel={t("device.actions.confirm")}
         cancelLabel={t("device.actions.cancel")}

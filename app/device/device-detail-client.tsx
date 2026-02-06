@@ -203,8 +203,8 @@ export function DeviceDetailClient({ wwn }: DeviceDetailClientProps) {
               ? t("device.dialog.archive")
               : t("device.dialog.unarchive")
         }
-        confirmLabel={t("common.confirm")}
-        cancelLabel={t("common.cancel")}
+        confirmLabel={t("device.actions.confirm")}
+        cancelLabel={t("device.actions.cancel")}
         confirmVariant={confirmState === "delete" ? "destructive" : "default"}
         onConfirm={handleAction}
         onCancel={() => setConfirmState(null)}
